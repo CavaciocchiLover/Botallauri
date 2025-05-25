@@ -38,9 +38,9 @@ try:
         jsonA = json.load(f)
     with open("orario_B.json") as f:
         jsonB = json.load(f)
-    with open("settimane_A.json") as f:
+    with open("settimana_A.json") as f:
         settimaneA = json.load(f)
-    with open("settimane_B.json") as f:
+    with open("settimana_B.json") as f:
         settimaneB = json.load(f)
 except FileNotFoundError:
     raise FileNotFoundError("non ho trovato i file.json necessari")
@@ -55,28 +55,25 @@ async def cerca(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         if oggi.weekday() == 6:
             oggi = oggi + datetime.timedelta(days=1)
 
-        monday = oggi.day if oggi.weekday() == 0 else (oggi - datetime.timedelta(days=oggi.weekday())).day
-        sunday = oggi.day if oggi.weekday() == 5 else (oggi + datetime.timedelta(days=5 - oggi.weekday())).day
-
-        await mandoElenco(update=update, mese=mesi[oggi.month - 1], periodo=str(monday) + "-" + str(sunday),
+        await mandoElenco(update=update, mese=mesi[oggi.month - 1], n_giorno=str(oggi.day),
                           giorno=giorni[oggi.weekday()], classe=message[1], giornoSpecifico=False, context=context)
 
 
-async def mandoElenco(update: Update, mese: str, periodo: str, giorno: str, classe: str, giornoSpecifico: bool, context: ContextTypes.DEFAULT_TYPE) -> None:
+async def mandoElenco(update: Update, mese: str, n_giorno: str, giorno: str, classe: str, giornoSpecifico: bool, context: ContextTypes.DEFAULT_TYPE) -> None:
     sezione = {}
     try:
         vacanza = False
         if "1" in classe and "LIC" not in classe:
-            if settimaneB[mese][periodo] == "B":
+            if settimaneB[mese][n_giorno] == "B":
                 sezione = jsonB[classe][giorno]
-            elif settimaneB[mese][periodo] == "N/A":
+            elif settimaneB[mese][n_giorno] == "N/A":
                 vacanza = True
             else:
                 sezione = jsonA[classe][giorno]
         else:
-            if settimaneA[mese][periodo] == "B":
+            if settimaneA[mese][n_giorno] == "B":
                 sezione = jsonB[classe][giorno]
-            elif settimaneA[mese][periodo] == "N/A":
+            elif settimaneA[mese][n_giorno] == "N/A":
                 vacanza = True
             else:
                 sezione = jsonA[classe][giorno]
@@ -113,12 +110,9 @@ async def domani(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         if oggi.weekday() == 5:
             oggi = oggi + datetime.timedelta(days=2)
         else:
-            oggi = oggi - datetime.timedelta(days=1)
+            oggi = oggi + datetime.timedelta(days=1)
 
-        monday = oggi.day if oggi.weekday() == 0 else (oggi - datetime.timedelta(days=oggi.weekday())).day
-        sunday = oggi.day if oggi.weekday() == 5 else (oggi + datetime.timedelta(days=5 - oggi.weekday())).day
-
-        await mandoElenco(update=update, mese=mesi[oggi.month - 1], periodo=str(monday) + "-" + str(sunday),
+        await mandoElenco(update=update, mese=mesi[oggi.month - 1], n_giorno=str(oggi.day),
                           giorno=giorni[oggi.weekday()], classe=message[1], giornoSpecifico=False, context=context)
 
 
@@ -164,11 +158,8 @@ async def giorno(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
                                       "%d/%m/%Y")
     if data.weekday() == 6:
         data = data + datetime.timedelta(days=1)
-    monday = data.day if data.weekday() == 0 else (data - datetime.timedelta(days=data.weekday())).day
-    sunday = data.day if data.weekday() == 5 else (data + datetime.timedelta(days=5 - data.weekday())).day
 
-
-    await mandoElenco(update=update, mese=mesi[data.month - 1], periodo=str(monday) + "-" + str(sunday),
+    await mandoElenco(update=update, mese=mesi[data.month - 1], n_giorno=str(data.day),
                       giorno=giorni[data.weekday()], classe=dati[0], giornoSpecifico=True, context=context)
     return END_ROUTES
 

@@ -96,7 +96,6 @@ def process_schedule_block(page, day_index: int, x_offset: float, y_start: float
         ora_singola1 = 1
         offset_y = 80
         offset_x = 60
-
     add_to_json(blocco1, day_name, template, ora_singola1)
 
     # Second block (hours 3-4)
@@ -113,7 +112,6 @@ def process_schedule_block(page, day_index: int, x_offset: float, y_start: float
             ora_singola2 = 1
             offset_y = 80
             offset_x = 60
-
         add_to_json(blocco2, day_name, template, ora_singola2)
         # Third block (hours 5-6)
         blocco3 = extract_text_block(page,
@@ -147,7 +145,6 @@ def process_type_a(doc) -> Dict:
         header = page.get_textbox(fitz.Rect(320, 20, 425, 50)).splitlines()
         class_name = re.sub(r'\s+', "", header[0])
 
-        print(class_name)
         # Process each day
         for day_index in range(days_count):
             process_schedule_block(
@@ -164,13 +161,11 @@ def process_type_b(doc) -> Dict:
     """Process Type B document (Standard settimana B)."""
     classes_json = {}
 
-
     for page_num in range(len(doc)):
         page = doc[page_num]
         # Extract class name
         header = page.get_textbox(fitz.Rect(380, 20, 425, 50)).splitlines()
         class_name = re.sub(r'\s+', "", header[0])
-        print(class_name)
 
         # Determine if Saturday is included
         days_count = 5 if "LIC" in class_name else 6
